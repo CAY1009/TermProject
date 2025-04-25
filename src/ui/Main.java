@@ -1,11 +1,11 @@
 package ui;
+
 import models.Book;
 import models.Borrower;
 import services.FileHandler;
 import services.LibraryService;
 
-import java.util.Scanner;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     private static final String BOOKS_FILE = "books.txt";
@@ -31,10 +31,11 @@ public class Main {
             System.out.println("5. Borrow Book");
             System.out.println("6. Return Book");
             System.out.println("7. Save & Exit");
+            System.out.println("8. Remove Book");
             System.out.print("Choose option: ");
 
             int choice = scanner.nextInt();
-            scanner.nextLine(); // Clear buffer
+            scanner.nextLine();
 
             switch (choice) {
                 case 1:
@@ -50,8 +51,11 @@ public class Main {
                     break;
 
                 case 2:
-                    for (Book b : library.listBooks()) {
-                        System.out.println(b);
+                    List<Book> sortedBooks = new ArrayList<>(library.listBooks());
+                    sortedBooks.sort(Comparator.comparing(Book::getGenre).thenComparing(Book::getTitle));
+                    System.out.println("Books by Genre:");
+                    for (Book book : sortedBooks) {
+                        System.out.println("Genre: " + book.getGenre() + " | " + book);
                     }
                     break;
 
@@ -66,26 +70,35 @@ public class Main {
                     break;
 
                 case 4:
-                    for (Borrower b : library.listBorrowers()) {
-                        System.out.println(b);
-                    }
+                    library.listBorrowers().forEach(System.out::println);
                     break;
 
                 case 5:
-                    System.out.print("Book ID to borrow: ");
+                    System.out.print("Search by keyword: ");
+                    String keyword = scanner.nextLine();
+                    List<Book> matches = library.searchBooks(keyword).stream().filter(Book::isAvailable).toList();
+                    if (matches.isEmpty()) {
+                        System.out.println("No available books found.");
+                        break;
+                    }
+                    matches.forEach(System.out::println);
+                    System.out.print("Enter Book ID to borrow: ");
                     String borrowId = scanner.nextLine();
-                    if (library.borrowBook(borrowId)) {
-                        System.out.println("Book borrowed.");
+                    System.out.print("Enter Borrower ID: ");
+                    String borrowerId = scanner.nextLine();
+                    if (library.borrowBook(borrowId, borrowerId)) {
+                        System.out.println("Book borrowed. Due in " + Book.maxDurationByDays + " days.");
                     } else {
-                        System.out.println("Book not available.");
+                        System.out.println("Book not available or ID incorrect.");
                     }
                     break;
 
                 case 6:
-                    System.out.print("Book ID to return: ");
+                    System.out.print("Enter Book ID to return: ");
                     String returnId = scanner.nextLine();
-                    if (library.returnBook(returnId)) {
-                        System.out.println("Book returned.");
+                    double fee = library.returnBook(returnId);
+                    if (fee >= 0) {
+                        System.out.println("Book returned." + (fee > 0 ? " Late fee: $" + fee : ""));
                     } else {
                         System.out.println("Book not found or not borrowed.");
                     }
@@ -99,6 +112,15 @@ public class Main {
                         return;
                     } catch (Exception e) {
                         System.out.println("Error saving data: " + e.getMessage());
+                    }
+                    break;
+                case 8:
+                    System.out.print("Enter Book ID to remove: ");
+                    String removeId = scanner.nextLine();
+                    if (library.removeBook(removeId)) {
+                        System.out.println("Book removed successfully.");
+                    } else {
+                        System.out.println("Book not found.");
                     }
                     break;
 
