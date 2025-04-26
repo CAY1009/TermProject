@@ -15,6 +15,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         LibraryService library = new LibraryService();
 
+        // Load books and borrowers from files
         try {
             library.listBooks().addAll(FileHandler.loadBooks(BOOKS_FILE));
             library.listBorrowers().addAll(FileHandler.loadBorrowers(BORROWERS_FILE));
@@ -22,6 +23,7 @@ public class Main {
             System.out.println("Error loading data: " + e.getMessage());
         }
 
+        // Main menu loop - Menu options
         while (true) {
             System.out.println("\n=== Library Management ===");
             System.out.println("1. Add Book");
@@ -30,15 +32,16 @@ public class Main {
             System.out.println("4. List Borrowers");
             System.out.println("5. Borrow Book");
             System.out.println("6. Return Book");
-            System.out.println("7. Save & Exit");
-            System.out.println("8. Remove Book");
+            System.out.println("7. Delete Book");
+            System.out.println("8. Edit Book");
+            System.out.println("9. Exit");
             System.out.print("Choose option: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
-                case 1:
+                case 1:    // Add new book
                     System.out.print("Book ID: ");
                     String id = scanner.nextLine();
                     System.out.print("Title: ");
@@ -50,31 +53,45 @@ public class Main {
                     library.addBook(new Book(id, title, author, genre));
                     break;
 
-                case 2:
-                    List<Book> sortedBooks = new ArrayList<>(library.listBooks());
-                    sortedBooks.sort(Comparator.comparing(Book::getGenre).thenComparing(Book::getTitle));
+                case 2:  // List and sort books by genre then title
+                    List<Book> books = library.listBooks();
+                    books.sort(Comparator.comparing(Book::getGenre).thenComparing(Book::getTitle));
+
                     System.out.println("Books by Genre:");
-                    for (Book book : sortedBooks) {
+                    for (Book book : books) {
                         System.out.println("Genre: " + book.getGenre() + " | " + book);
+                    }
+
+                    try {
+                        FileHandler.saveBooks(books, BOOKS_FILE);
+                        System.out.println("Data saved.");
+                    } catch (Exception e) {
+                        System.out.println("Error saving data: " + e.getMessage());
                     }
                     break;
 
-                case 3:
+                case 3:// Add new borrower and save
                     System.out.print("Borrower ID: ");
                     String bid = scanner.nextLine();
                     System.out.print("Name: ");
                     String name = scanner.nextLine();
-                    System.out.print("Contact: ");
+                    System.out.print("Email: ");
                     String contact = scanner.nextLine();
                     library.addBorrower(new Borrower(bid, name, contact));
+                    try {
+                        FileHandler.saveBorrowers(library.listBorrowers(), BORROWERS_FILE);
+                        System.out.println("Data saved.");
+                    } catch (Exception e) {
+                        System.out.println("Error saving data: " + e.getMessage());
+                    }
                     break;
 
-                case 4:
+                case 4: // Display all borrowers
                     library.listBorrowers().forEach(System.out::println);
                     break;
 
-                case 5:
-                    System.out.print("Search by keyword: ");
+                case 5:// Search books and borrow if available
+                    System.out.print("Search books by Book ID, title, author, or genre: ");
                     String keyword = scanner.nextLine();
                     List<Book> matches = library.searchBooks(keyword).stream().filter(Book::isAvailable).toList();
                     if (matches.isEmpty()) {
@@ -86,43 +103,75 @@ public class Main {
                     String borrowId = scanner.nextLine();
                     System.out.print("Enter Borrower ID: ");
                     String borrowerId = scanner.nextLine();
-                    if (library.borrowBook(borrowId, borrowerId)) {
-                        System.out.println("Book borrowed. Due in " + Book.maxDurationByDays + " days.");
-                    } else {
-                        System.out.println("Book not available or ID incorrect.");
-                    }
+                    library.borrowBook(borrowId, borrowerId);
                     break;
 
-                case 6:
+                case 6:  // Return book
                     System.out.print("Enter Book ID to return: ");
                     String returnId = scanner.nextLine();
-                    double fee = library.returnBook(returnId);
-                    if (fee >= 0) {
-                        System.out.println("Book returned." + (fee > 0 ? " Late fee: $" + fee : ""));
-                    } else {
-                        System.out.println("Book not found or not borrowed.");
-                    }
+                    library.returnBook(returnId);
                     break;
 
-                case 7:
+                case 7:   // Remove book
+                    System.out.print("Enter Book ID to remove: ");
+                    String removeId = scanner.nextLine();
+                    library.removeBook(removeId);
+                    break;
+
+                case 8: // Edit existing book
+                    System.out.print("Enter Book ID to edit: ");
+                    String editId = scanner.nextLine();
+                    Book bookToEdit = null;
+
+                    for (Book b : library.listBooks()) {
+                        if (b.getId().equals(editId)) {
+                            bookToEdit = b;
+                            break;
+                        }
+                    }
+
+                    if (bookToEdit == null) {
+                        System.out.println("Book not found.");
+                        break;
+                    }
+
+                    System.out.println("Editing Book: " + bookToEdit);
+                    System.out.print("New Title (leave blank to keep current): ");
+                    String newTitle = scanner.nextLine();
+                    if (!newTitle.isBlank()) {
+                        bookToEdit.setTitleNew(newTitle);
+                    }
+
+                    System.out.print("New Author (leave blank to keep current): ");
+                    String newAuthor = scanner.nextLine();
+                    if (!newAuthor.isBlank()) {
+                        bookToEdit.setAuthorNew(newAuthor);
+                    }
+
+                    System.out.print("New Genre (leave blank to keep current): ");
+                    String newGenre = scanner.nextLine();
+                    if (!newGenre.isBlank()) {
+                        bookToEdit.setGenreNew(newGenre);
+                    }
+
+                    try {
+                        FileHandler.saveBooks(library.listBooks(), BOOKS_FILE);
+                        System.out.println("Changes saved successfully.");
+                    } catch (Exception e) {
+                        System.out.println("Error saving changes: " + e.getMessage());
+                    }
+
+                    break;
+
+                case 9:// Exit and save data
                     try {
                         FileHandler.saveBooks(library.listBooks(), BOOKS_FILE);
                         FileHandler.saveBorrowers(library.listBorrowers(), BORROWERS_FILE);
                         System.out.println("Data saved. Goodbye!");
-                        return;
                     } catch (Exception e) {
                         System.out.println("Error saving data: " + e.getMessage());
                     }
-                    break;
-                case 8:
-                    System.out.print("Enter Book ID to remove: ");
-                    String removeId = scanner.nextLine();
-                    if (library.removeBook(removeId)) {
-                        System.out.println("Book removed successfully.");
-                    } else {
-                        System.out.println("Book not found.");
-                    }
-                    break;
+                    return;
 
                 default:
                     System.out.println("Invalid option.");
