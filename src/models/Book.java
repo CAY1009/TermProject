@@ -28,18 +28,12 @@ public class Book {
     public LocalDate getDueDate() { return dueDate; }
 
     // Borrow a book - updates availability, borrowerId and dueDate
-    public void borrowBook(String borrowerId) {
+    public void checkOutBook(String borrowerId) {
         this.isAvailable = false;
         this.borrowerId = borrowerId;
         this.dueDate = LocalDate.now().plusDays(maxDurationByDays);
     }
 
-    // Return book - resets borrow fields
-//    public void returnBook() {
-//        this.isAvailable = true;
-//        this.borrowerId = null;
-//        this.dueDate = null;
-//    }
 
     // Setters for internal updates
     public void setAvailable(boolean available) {
@@ -69,6 +63,6 @@ public class Book {
     public String toString() {
         String status = isAvailable ? "Available" : "Borrowed by " + borrowerId +
                 " (Due: " + (dueDate != null ? dueDate.format(DateTimeFormatter.ISO_DATE) : "N/A") + ")";
-        return id + " - " + title + " by " + author + " [" + status + "]";
+        return id + " | " + title + " | " + author + " | " + genre + " | " + status;
     }
 }

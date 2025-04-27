@@ -66,7 +66,7 @@ public class FileHandler {
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
                 if (parts.length >= 3) {
-                    borrowers.add(new Borrower(parts[0], parts[1], parts[2]));
+                    borrowers.add(new Borrower(parts[0], parts[1], parts[2], parts[3]));
                 }
             }
         }
@@ -78,7 +78,7 @@ public class FileHandler {
     public static void saveBorrowers(List<Borrower> borrowers, String filename) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Borrower b : borrowers) {
-                writer.write(String.join(",", b.getId(), b.getName(), b.getContact()));
+                writer.write(String.join(",", b.getId(), b.getName(),  b.getPhone(), b.getEmail()));
                 writer.newLine();
             }
         }

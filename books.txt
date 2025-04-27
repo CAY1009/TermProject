@@ -1,14 +1,10 @@
-006,Peter Pan,Unknown,Childrens,true,,
-008,The Mermaids Of Eldoris,PJ Ryan,Childrens,true,,
-002,Apprentice to the Villan,Hannah Nicole Maehrer,Fantasy,true,,
-003,One Dark Window,Rachel Gillig,Fantasy,true,,
-004,When the Moon Hatched,Sarah A Parker,Fantasy,true,,
-005,Becoming Free Indeed,Jill Duggar Vuolo,Non-Fiction,true,,
-009,I've Seen the End of You,W. Lee Warren,Non-Fiction,true,,
-011,Left Behind,Tim LaHaye,Religious Fiction,true,,
-010,War Room,Chris Fabry,Religious Fiction,true,,
-001,Blood and Ash,Jennifer Armentrout,Romantacy,true,,
-008,Fear The Flames,Olivia Rose Darling ,Romantasy,false,1,2025-05-07
-007,Of Earth and Flame,Elayna R Gallea,Romantasy,true,,
-3,Cat,rat,thriller,true,,
-2,sheep,fox,thriller,true,,
+1,Peter Pan,Unknown,Childrens,true,,
+2,Apprentice to the Villan,Hannah Nicole Maehrer,Fantasy,false,2,2025-05-11
+3,Becoming Free Indeed,Jill Duggar Vuolo,Non-Fiction,true,,
+4,Cat,rat,thriller,false,2,2025-05-11
+5,When the Moon Hatched,Sarah A Parker,Fantasy,true,,
+6,Left Behind,Tim LaHaye,Religious Fiction,true,,
+7,I've Seen the End of You,W. Lee Warren,Non-Fiction,true,,
+8,Fear The Flames,Olivia Rose Darling ,Romantasy,false,1,2025-05-07
+9,Of Earth and Flame,Elayna R Gallea,Romantasy,true,,
+10,The Mermaids Of Eldoris,PJ Ryan,Childrens,true,,
