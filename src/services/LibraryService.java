@@ -29,6 +29,7 @@ public class LibraryService {
         // persist book in books.txt
         try {
             FileHandler.saveBooks(this.books, BOOKS_FILE);
+            System.out.println("Success.");
         } catch (IOException ioException) {
             System.out.println("Book is not saved successfully. Please try again.");
         }
@@ -40,6 +41,7 @@ public class LibraryService {
         // persist borrowers in borrowers.txt
         try {
             FileHandler.saveBorrowers(this.borrowers, BORROWERS_FILE);
+            System.out.println("Success.");
         } catch (Exception e) {
             System.out.println("Error saving data: " + e.getMessage());
         }
@@ -218,6 +220,7 @@ public class LibraryService {
                 bookToEdit.setGenreNew(newGenre);
             }
             FileHandler.saveBooks(this.books, BOOKS_FILE);
+            System.out.println("Success.");
         } catch (IOException ioException) {
             System.out.println("Book is not saved successfully. Please try again.");
         }
@@ -251,17 +254,18 @@ public class LibraryService {
             if (!newName.isBlank()) {
                 borrowerToEdit.setName(newName);
             }
-            System.out.print("New Phone (leave blank to keep current): ");
-            String newPhone = scanner.nextLine();
-            if (!newPhone.isBlank()) {
-                borrowerToEdit.setPhone(newPhone);
-            }
             System.out.print("New email (leave blank to keep current): ");
             String newEmail = scanner.nextLine();
             if (!newEmail.isBlank()) {
                 borrowerToEdit.setEmail(newEmail);
             }
+            System.out.print("New Phone (leave blank to keep current): ");
+            String newPhone = scanner.nextLine();
+            if (!newPhone.isBlank()) {
+                borrowerToEdit.setPhone(newPhone);
+            }
             FileHandler.saveBorrowers(this.borrowers, BORROWERS_FILE);
+            System.out.println("Success.");
         } catch (Exception e) {
             System.out.println("Error saving data: " + e.getMessage());
         }

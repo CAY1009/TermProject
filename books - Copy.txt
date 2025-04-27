@@ -1,7 +1,7 @@
 1,Peter Pan,Unknown,Childrens,true,,
-2,Apprentice to the Villan,Hannah Nicole Maehrer,Fantasy,false,2,2025-05-11
-3,New title 2,Anne,CBA,true,,
-4,Cat,rat,thriller,false,2,2025-05-11
+2,Apprentice to the Villan,Hannah Nicole Maehrer,Fantasy,true,,
+3,Becoming Free Indeed,Jill Duggar Vuolo,Non-Fiction,true,,
+4,Cat,rat,thriller,true,,
 5,When the Moon Hatched,Sarah A Parker,Fantasy,true,,
 6,Left Behind,Tim LaHaye,Religious Fiction,true,,
 7,I've Seen the End of You,W. Lee Warren,Non-Fiction,true,,

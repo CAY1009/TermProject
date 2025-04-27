@@ -78,7 +78,7 @@ public class FileHandler {
     public static void saveBorrowers(List<Borrower> borrowers, String filename) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (Borrower b : borrowers) {
-                writer.write(String.join(",", b.getId(), b.getName(),  b.getPhone(), b.getEmail()));
+                writer.write(String.join(",", b.getId(), b.getName(), b.getEmail(), b.getPhone()));
                 writer.newLine();
             }
         }
