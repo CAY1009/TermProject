@@ -8,7 +8,10 @@ public class Book {
     private String id, title, author, genre, borrowerId;
     private boolean isAvailable;
     private LocalDate dueDate;
-    public static final int maxDurationByDays = 14;
+    public static final int MAX_DURATION_BY_DAYS = 14;
+
+    // late fee as 2 dollars per day past the due date
+    public static final int DOLLARS_PER_DAY = 2;
 
     // Constructor to create a book
     public Book(String id, String title, String author, String genre) {
@@ -31,7 +34,7 @@ public class Book {
     public void checkOutBook(String borrowerId) {
         this.isAvailable = false;
         this.borrowerId = borrowerId;
-        this.dueDate = LocalDate.now().plusDays(maxDurationByDays);
+        this.dueDate = LocalDate.now().plusDays(MAX_DURATION_BY_DAYS);
     }
 
 

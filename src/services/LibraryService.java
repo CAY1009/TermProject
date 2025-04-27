@@ -5,6 +5,7 @@ import models.Borrower;
 import services.FileHandler;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.*;
 
 public class LibraryService {
@@ -53,9 +54,9 @@ public class LibraryService {
     }
 
     public List<Borrower> listBorrowers() {
-        try  {
+        try {
             return this.borrowers = FileHandler.loadBorrowers(BORROWERS_FILE);
-        } catch (IOException ioException){
+        } catch (IOException ioException) {
             System.out.println(ioException.getMessage());
             return null;
         }
@@ -75,7 +76,7 @@ public class LibraryService {
                     break;
                 }
             }
-            if(!foundBook){
+            if (!foundBook) {
                 System.out.println("Book is not available or does not exist.");
             }
 
@@ -110,7 +111,7 @@ public class LibraryService {
     public List<Book> searchBooks(String keyword) {
         try {
             this.books = FileHandler.loadBooks(BOOKS_FILE);
-        } catch (IOException ioException){
+        } catch (IOException ioException) {
             System.out.println(ioException.getMessage());
         }
         List<Book> result = new ArrayList<>();
@@ -298,6 +299,99 @@ public class LibraryService {
             FileHandler.saveBorrowers(this.borrowers, BORROWERS_FILE);
         } catch (Exception e) {
             System.out.println("Error saving data: " + e.getMessage());
+        }
+    }
+
+    // allows user to search by borrowerId or bookId
+    public void displayDueDateAndLateFee(Scanner scanner) {
+        try {
+            this.books = FileHandler.loadBooks(BOOKS_FILE);
+        } catch (IOException ioException) {
+            System.out.println(ioException.getMessage());
+        }
+
+        System.out.println("Choose option: ");
+        System.out.println("1. Search by Book Id");
+        System.out.println("2. Search by Borrower Id");
+        System.out.println("Enter ! to go back to the main menu");
+        String viewChoice = scanner.nextLine();
+
+        boolean exitMethod = false;
+        while (!exitMethod) {
+            boolean foundBook = false;
+            switch (viewChoice) {
+                case "1":
+//                search by book id
+                    System.out.print("Enter Book Id: ");
+                    String bookId = scanner.nextLine();
+                    exitMethod = true;
+                    for (Book b : this.books) {
+                        if (b.getId().equals(bookId)) {
+//                            show due date and calculate late fee
+                            foundBook = true;
+
+                            if (b.isAvailable()) {
+//                                book is not borrowed
+                                System.out.println("This book is not borrowed.");
+                            } else {
+                                System.out.println("Due date and late fee:");
+                                System.out.println(b);
+                                System.out.println("Due Date: " + b.getDueDate());
+                                long daysPastDue = LocalDate.now().toEpochDay() - b.getDueDate().toEpochDay();
+                                if (daysPastDue > 0) {
+//                                past due date
+                                    System.out.println("Late Fee: $" + daysPastDue * Book.DOLLARS_PER_DAY+"\n");
+                                } else {
+//                                not past due date yet
+                                    System.out.println("Late Fee: $0 (Not due yet)\n");
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    if (!foundBook) {
+                        System.out.println("Book not found.");
+                    }
+                    break;
+                case "2":
+//                search by borrower id
+                    System.out.print("Enter Borrower Id: ");
+                    String borrowerId = scanner.nextLine();
+                    exitMethod = true;
+                    List<Book> foundBooks = new ArrayList<>();
+                    for (Book b : this.books) {
+                        if (b.getBorrowerId()!=null && b.getBorrowerId().equals(borrowerId)) {
+                            foundBooks.add(b);
+                        }
+                    }
+                    if (foundBooks.isEmpty()) {
+                        System.out.println("Book not found.");
+                    } else {
+//                        display all due dates and late fees of the borrowed books by the borrower id
+                        System.out.println("Due date and late fee:");
+                        for (Book b: foundBooks){
+                            System.out.println(b);
+                            System.out.println("Due Date: " + b.getDueDate());
+                            long daysPastDue = LocalDate.now().toEpochDay() - b.getDueDate().toEpochDay();
+                            if (daysPastDue > 0) {
+//                                past due date
+                                System.out.println("Late Fee: $" + daysPastDue * Book.DOLLARS_PER_DAY+"\n");
+                            } else {
+//                                not past due date yet
+                                System.out.println("Late Fee: $0 (Not due yet)\n");
+                            }
+                        }
+                    }
+                    break;
+                case "!":
+//                    exit method
+                    exitMethod = true;
+                    break;
+                default:
+                    System.out.println("Please enter a valid option");
+                    viewChoice = scanner.nextLine();
+                    break;
+            }
         }
     }
 

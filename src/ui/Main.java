@@ -30,7 +30,8 @@ public class Main {
             System.out.println("8. Register Borrower");
             System.out.println("9. Update Borrower");
             System.out.println("10. Delete Borrower");
-            System.out.println("11. Exit");
+            System.out.println("11. Display Due Date and Late Fee");
+            System.out.println("12. Exit");
             System.out.print("Choose option: ");
 
             int choice = scanner.nextInt();
@@ -156,8 +157,16 @@ public class Main {
                     libraryService.deleteBorrower(scanner);
                     break;
 
-                // Exit and save data
+                // Display due date and late fee
                 case 11:
+                    if(libraryService.askToReturnToMainMenu(scanner)){
+                        continue;
+                    }
+                    libraryService.displayDueDateAndLateFee(scanner);
+                    break;
+
+                // Exit and save data
+                case 12:
                     libraryService.exitProgram();
                     return;
 
