@@ -2,43 +2,57 @@ package ui;
 
 import models.Book;
 import models.Borrower;
-import services.FileHandler;
+
 import services.LibraryService;
 
 import java.util.*;
 
 public class Main {
-    private static final String BOOKS_FILE = "books.txt";
+
     private static final String BORROWERS_FILE = "borrowers.txt";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        LibraryService library = new LibraryService();
+        LibraryService libraryService = new LibraryService();
 
-        try {
-            library.listBooks().addAll(FileHandler.loadBooks(BOOKS_FILE));
-            library.listBorrowers().addAll(FileHandler.loadBorrowers(BORROWERS_FILE));
-        } catch (Exception e) {
-            System.out.println("Error loading data: " + e.getMessage());
-        }
 
+        // Main menu loop - Menu options
         while (true) {
-            System.out.println("\n=== Library Management ===");
-            System.out.println("1. Add Book");
-            System.out.println("2. List Books");
-            System.out.println("3. Add Borrower");
-            System.out.println("4. List Borrowers");
+            System.out.println("\n===Main Menu===");
+            System.out.println("1. List Books");
+            System.out.println("2. Add book");
+            System.out.println("3. Edit Book");
+            System.out.println("4. Delete Book");
             System.out.println("5. Borrow Book");
             System.out.println("6. Return Book");
-            System.out.println("7. Save & Exit");
-            System.out.println("8. Remove Book");
+
+            System.out.println("7. List Borrowers");
+            System.out.println("8. Register Borrower");
+            System.out.println("9. Update Borrower");
+            System.out.println("10. Delete Borrower");
+            System.out.println("11. Exit");
             System.out.print("Choose option: ");
 
             int choice = scanner.nextInt();
             scanner.nextLine();
 
             switch (choice) {
+                //List and Sort Books
                 case 1:
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        // Return to the main menu
+                        continue;
+                    }
+
+                    // display books based on sort option
+                    libraryService.sortBooks(scanner);
+                    break;
+
+                // Add new book
+                case 2:
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
                     System.out.print("Book ID: ");
                     String id = scanner.nextLine();
                     System.out.print("Title: ");
@@ -47,85 +61,109 @@ public class Main {
                     String author = scanner.nextLine();
                     System.out.print("Genre: ");
                     String genre = scanner.nextLine();
-                    library.addBook(new Book(id, title, author, genre));
+                    libraryService.addBook(new Book(id, title, author, genre));
                     break;
 
-                case 2:
-                    List<Book> sortedBooks = new ArrayList<>(library.listBooks());
-                    sortedBooks.sort(Comparator.comparing(Book::getGenre).thenComparing(Book::getTitle));
-                    System.out.println("Books by Genre:");
-                    for (Book book : sortedBooks) {
-                        System.out.println("Genre: " + book.getGenre() + " | " + book);
-                    }
-                    break;
-
+                    // Edit existing book
                 case 3:
-                    System.out.print("Borrower ID: ");
-                    String bid = scanner.nextLine();
-                    System.out.print("Name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Contact: ");
-                    String contact = scanner.nextLine();
-                    library.addBorrower(new Borrower(bid, name, contact));
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
+                    libraryService.editBook(scanner);
                     break;
 
+                // Remove book
                 case 4:
-                    library.listBorrowers().forEach(System.out::println);
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
+                    System.out.print("Enter Book ID to remove: ");
+                    String removeId = scanner.nextLine();
+                    libraryService.removeBook(removeId);
                     break;
 
+                // Search books and borrow if available
                 case 5:
-                    System.out.print("Search by keyword: ");
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
+                    System.out.print("Search books by Book ID, title, author, or genre: ");
                     String keyword = scanner.nextLine();
-                    List<Book> matches = library.searchBooks(keyword).stream().filter(Book::isAvailable).toList();
+                    List<Book> matches = libraryService.searchBooks(keyword).stream().filter(Book::isAvailable).toList();
+                    matches.forEach(System.out::println);
                     if (matches.isEmpty()) {
                         System.out.println("No available books found.");
                         break;
                     }
-                    matches.forEach(System.out::println);
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
                     System.out.print("Enter Book ID to borrow: ");
-                    String borrowId = scanner.nextLine();
+                    String bookId = scanner.nextLine();
                     System.out.print("Enter Borrower ID: ");
                     String borrowerId = scanner.nextLine();
-                    if (library.borrowBook(borrowId, borrowerId)) {
-                        System.out.println("Book borrowed. Due in " + Book.maxDurationByDays + " days.");
-                    } else {
-                        System.out.println("Book not available or ID incorrect.");
-                    }
+                    libraryService.borrowBook(bookId, borrowerId);
                     break;
 
+                // Return book
                 case 6:
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
                     System.out.print("Enter Book ID to return: ");
                     String returnId = scanner.nextLine();
-                    double fee = library.returnBook(returnId);
-                    if (fee >= 0) {
-                        System.out.println("Book returned." + (fee > 0 ? " Late fee: $" + fee : ""));
-                    } else {
-                        System.out.println("Book not found or not borrowed.");
-                    }
+                    libraryService.returnBook(returnId);
                     break;
 
+                // Display all borrowers
                 case 7:
-                    try {
-                        FileHandler.saveBooks(library.listBooks(), BOOKS_FILE);
-                        FileHandler.saveBorrowers(library.listBorrowers(), BORROWERS_FILE);
-                        System.out.println("Data saved. Goodbye!");
-                        return;
-                    } catch (Exception e) {
-                        System.out.println("Error saving data: " + e.getMessage());
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
                     }
+                    System.out.println("Borrower ID | Name | Phone | Email ");
+                    libraryService.listBorrowers().forEach(System.out::println);
                     break;
+
+                // Add new borrower and save
                 case 8:
-                    System.out.print("Enter Book ID to remove: ");
-                    String removeId = scanner.nextLine();
-                    if (library.removeBook(removeId)) {
-                        System.out.println("Book removed successfully.");
-                    } else {
-                        System.out.println("Book not found.");
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
                     }
+                    System.out.print("Borrower ID: ");
+                    String bid = scanner.nextLine();
+                    System.out.print("Name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Email: ");
+                    String email = scanner.nextLine();
+                    System.out.print("Phone: ");
+                    String phone = scanner.nextLine();
+                    libraryService.addBorrower(new Borrower(bid, name, email, phone));
                     break;
+
+                //Edit Borrower Information
+                case 9:
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
+                    libraryService.editBorrower(scanner);
+                    break;
+
+                //Delete Borrower
+                case 10:
+                    if (libraryService.askToReturnToMainMenu(scanner)) {
+                        continue;
+                    }
+                    libraryService.deleteBorrower(scanner);
+                    break;
+
+                // Exit and save data
+                case 11:
+                    libraryService.exitProgram();
+                    return;
 
                 default:
                     System.out.println("Invalid option.");
+
             }
         }
     }
